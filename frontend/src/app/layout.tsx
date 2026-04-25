@@ -14,6 +14,11 @@ const roboto = Roboto({ weight: '400', subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Respire bem',
   description: 'Projeto PI 3 Semestre Fatec Itapira',
+  openGraph: {
+    title: 'Respire bem',
+    description: 'Projeto PI 3 Semestre Fatec Itapira',
+    images: [{ url: '/images/logo.png' }],
+  },
 };
 
 export default function RootLayout({
