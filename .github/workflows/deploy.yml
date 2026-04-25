@@ -1,0 +1,23 @@
+name: Deploy Respire Bem
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+          echo "DEMO_EMAIL=${{ secrets.DEMO_EMAIL }}" >> .env
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
+
+      - name: Docker Build and Deploy
+        run: |
+          docker compose up -d --build --remove-orphans
+          docker image prune -f

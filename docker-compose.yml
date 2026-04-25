@@ -1,12 +1,12 @@
 services:
   postgres:
     image: postgres:16.3-alpine
+    container_name: respire-bem-postgres
+    restart: unless-stopped
     environment:
       POSTGRES_DB: respirebem
       POSTGRES_USER: respirebem
       POSTGRES_PASSWORD: respirebem
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -14,11 +14,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - respire-bem-net
 
   mongodb:
     image: mongo:7.0.12
-    ports:
-      - "27017:27017"
+    container_name: respire-bem-mongodb
+    restart: unless-stopped
     volumes:
       - mongodb_data:/data/db
     healthcheck:
@@ -26,33 +28,47 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - respire-bem-net
 
   backend:
     build: ./backend
-    ports:
-      - "3001:3001"
+    container_name: respire-bem-backend
+    restart: unless-stopped
     environment:
-      POSTGRES_URL: postgresql://respirebem:respirebem@postgres:5432/respirebem?schema=public
-      MONGODB_URI: mongodb://mongodb:27017/respirebem
+      POSTGRES_URL: postgresql://respirebem:respirebem@respire-bem-postgres:5432/respirebem?schema=public
+      MONGODB_URI: mongodb://respire-bem-mongodb:27017/respirebem
       JWT_SECRET: ${JWT_SECRET}
-      DEMO_EMAIL: demo@rafaelcostadev.com
+      DEMO_EMAIL: ${DEMO_EMAIL}
       NODE_ENV: production
     depends_on:
       postgres:
         condition: service_healthy
       mongodb:
         condition: service_healthy
+    networks:
+      - respire-bem-net
+      - nginx-proxy-network
 
   frontend:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_URL: http://localhost:3001/api
-    ports:
-      - "3000:3000"
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: respire-bem-frontend
+    restart: unless-stopped
     depends_on:
       - backend
+    networks:
+      - respire-bem-net
+      - nginx-proxy-network
 
 volumes:
   postgres_data:
   mongodb_data:
+
+networks:
+  respire-bem-net:
+    driver: bridge
+  nginx-proxy-network:
+    external: true
