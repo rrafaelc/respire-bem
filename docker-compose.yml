@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16.3-alpine
+    environment:
+      POSTGRES_DB: respirebem
+      POSTGRES_USER: respirebem
+      POSTGRES_PASSWORD: respirebem
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U respirebem"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:7.0.12
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      POSTGRES_URL: postgresql://respirebem:respirebem@postgres:5432/respirebem?schema=public
+      MONGODB_URI: mongodb://mongodb:27017/respirebem
+      JWT_SECRET: ${JWT_SECRET}
+      DEMO_EMAIL: demo@rafaelcostadev.com
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  mongodb_data:

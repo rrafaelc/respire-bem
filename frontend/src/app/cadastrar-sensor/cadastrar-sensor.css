@@ -1,0 +1,32 @@
+.Container-CadastroSensor {
+  max-width: 700px;
+  margin: 0 auto;
+  margin-top: 10%;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 50px 20px;
+  border-radius: 6px;
+}
+
+.Container-CadastroSensor h1 {
+  font-size: 2.3em;
+}
+
+.form-CadastroSensor {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.botoes-CadastroSensor {
+  display: flex;
+  justify-content: space-around;
+}
+
+@media (max-width: 600px) {
+  .botoes-CadastroSensor {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
