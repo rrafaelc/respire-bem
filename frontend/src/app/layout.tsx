@@ -12,6 +12,7 @@ import './globals.css';
 const roboto = Roboto({ weight: '400', subsets: ['latin'] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://projeto-respire-bem.rafaelcostadev.com'),
   title: 'Respire bem',
   description: 'Projeto PI 3 Semestre Fatec Itapira',
   openGraph: {
